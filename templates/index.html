@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛰️ SatelliteGPT</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            padding: 40px 0;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        
+        #map {
+            width: 100%;
+            height: 600px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        .results {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        .metric-card {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 10px;
+            min-width: 200px;
+        }
+        
+        .btn {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛰️ SatelliteGPT</h1>
+            <p>Multi-Satellite Data Fusion Platform</p>
+        </header>
+        
+        <div id="map"></div>
+        
+        <div class="results" id="results" style="display: none;">
+            <h2>📊 Satellite Data Results</h2>
+            <div id="metrics"></div>
+            <div id="analysis"></div>
+        </div>
+    </div>
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Initialize map
+        const map = L.map('map').setView([28.6139, 77.2090], 6);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        
+        // Handle map clicks
+        map.on('click', async function(e) {
+            const lat = e.latlng.lat;
+            const lon = e.latlng.lng;
+            
+            // Show loading
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('metrics').innerHTML = '<p>⏳ Fetching satellite data...</p>';
+            
+            try {
+                // Call API
+                const response = await fetch('/api/satellite-data', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({lat, lon})
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayResults(result.data);
+                } else {
+                    document.getElementById('metrics').innerHTML = `<p>❌ Error: ${result.error}</p>`;
+                }
+            } catch (error) {
+                document.getElementById('metrics').innerHTML = `<p>❌ Error: ${error.message}</p>`;
+            }
+        });
+        
+        function displayResults(data) {
+            const satellites = data.satellites;
+            let html = '';
+            
+            // Display metrics
+            for (const [name, satData] of Object.entries(satellites)) {
+                if (satData.indices && satData.indices.ndvi) {
+                    html += `
+                        <div class="metric-card">
+                            <h3>${name.toUpperCase()}</h3>
+                            <p>NDVI: ${satData.indices.ndvi.toFixed(3)}</p>
+                            <p>Status: ${satData.status}</p>
+                        </div>
+                    `;
+                }
+            }
+            
+            document.getElementById('metrics').innerHTML = html;
+        }
+    </script>
+</body>
+</html>

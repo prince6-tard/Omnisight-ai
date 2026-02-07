@@ -1,0 +1,54 @@
+# Core Web Framework
+streamlit
+streamlit-folium
+
+# Environment & Configuration
+python-dotenv
+
+# Satellite Data & Earth Engine
+earthengine-api
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+
+# AI & ML
+google-generativeai
+anthropic
+
+# Data Processing
+numpy
+pandas
+scipy
+
+# Image Processing
+Pillow
+opencv-python
+
+# Visualization
+matplotlib
+plotly
+folium
+
+# HTTP & API
+requests
+httpx
+
+# Utilities
+pytz
+tqdm
+
+# Date/Time
+python-dateutil
+
+# Scientific Computing
+scikit-learn
+scikit-image
+
+# Optional but useful
+geopy
+# rasterio  # Often problematic on Windows without conda
+# geopandas # Often problematic on Windows without conda
+
+flask
+flask-cors
+gunicorn
